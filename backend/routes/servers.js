@@ -2,8 +2,12 @@ const express = require('express');
 const db = require('../database');
 const serverManager = require('../serverManager');
 const { authenticateToken } = require('../middleware/auth');
+const { apiLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
+
+// Apply rate limiting to all server routes
+router.use(apiLimiter);
 
 // Helper function to check if user has access to server
 function checkServerAccess(userId, serverId, callback) {

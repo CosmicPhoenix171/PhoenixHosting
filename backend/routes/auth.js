@@ -3,11 +3,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../database');
 const { authenticateToken } = require('../middleware/auth');
+const { authLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
 // Register new user
-router.post('/register', (req, res) => {
+router.post('/register', authLimiter, (req, res) => {
   const { username, password, email } = req.body;
 
   if (!username || !password || !email) {
@@ -45,7 +46,7 @@ router.post('/register', (req, res) => {
 });
 
 // Login
-router.post('/login', (req, res) => {
+router.post('/login', authLimiter, (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
