@@ -1,0 +1,136 @@
+# Phoenix Hosting - Git Ignore
+
+# =============================================================================
+# SECURITY - Never commit these files!
+# =============================================================================
+
+# Firebase service account keys (CRITICAL - contains private key)
+**/service-account.json
+**/serviceAccountKey.json
+**/*-firebase-adminsdk-*.json
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# =============================================================================
+# Dependencies
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Node (if using Firebase CLI)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# =============================================================================
+# IDE and Editor
+# =============================================================================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains
+.idea/
+*.iml
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# =============================================================================
+# OS Files
+# =============================================================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.nfs*
+
+# =============================================================================
+# Build and Runtime
+# =============================================================================
+
+# Python build
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# =============================================================================
+# Phoenix Agent Specific
+# =============================================================================
+
+# Agent data directory
+phoenix-agent/data/
+
+# Agent tools (NSSM downloaded by install script)
+phoenix-agent/scripts/tools/
+
+# Service output logs
+phoenix-agent/logs/service-*.log
+
+# =============================================================================
+# Firebase
+# =============================================================================
+
+# Firebase cache
+.firebase/
+firebase-debug.log
+.firebaserc
+
+# But keep firebase config examples
+!firebase/database.rules.json
+!firebase/firebase.json
+!firebase/sample-data.json
+
+# =============================================================================
+# Testing
+# =============================================================================
+
+# Coverage reports
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Test outputs
+test-results/
