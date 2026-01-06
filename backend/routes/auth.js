@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../database');
 const { authenticateToken } = require('../middleware/auth');
-const { authLimiter } = require('../middleware/rateLimiter');
+const { authLimiter, apiLimiter } = require('../middleware/rateLimiter');
 
 const router = express.Router();
 
@@ -87,7 +87,7 @@ router.post('/login', authLimiter, (req, res) => {
 });
 
 // Get current user info
-router.get('/me', authenticateToken, (req, res) => {
+router.get('/me', apiLimiter, authenticateToken, (req, res) => {
   db.get('SELECT id, username, email, role, created_at FROM users WHERE id = ?', [req.user.id], (err, user) => {
     if (err) {
       return res.status(500).json({ error: 'Database error' });
