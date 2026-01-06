@@ -1,0 +1,20 @@
+# Phoenix Agent Dependencies
+# Install with: pip install -r requirements.txt
+
+# Firebase Admin SDK for secure cloud communication
+firebase-admin>=6.2.0
+
+# Process management
+psutil>=5.9.0
+
+# Watchdog for file system monitoring (optional, for future use)
+watchdog>=3.0.0
+
+# Windows service support
+pywin32>=306; sys_platform == 'win32'
+
+# Configuration validation
+jsonschema>=4.17.0
+
+# Retry logic for network operations
+tenacity>=8.2.0

@@ -1,0 +1,30 @@
+{
+    "firebase": {
+        "serviceAccountPath": "config/service-account.json",
+        "databaseURL": "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com"
+    },
+    "agent": {
+        "heartbeatInterval": 30,
+        "commandTimeout": 300,
+        "logLevel": "INFO",
+        "maxConcurrentCommands": 5,
+        "commandExpirySeconds": 300
+    },
+    "logging": {
+        "maxSizeMB": 10,
+        "backupCount": 5,
+        "retentionDays": 7
+    },
+    "servers": {
+        "example-server": {
+            "name": "Example Server",
+            "gameType": "minecraft",
+            "executablePath": "C:\\GameServers\\Minecraft\\start.bat",
+            "workingDirectory": "C:\\GameServers\\Minecraft",
+            "arguments": [],
+            "stopCommand": "stop",
+            "stopTimeout": 30,
+            "processName": "java.exe"
+        }
+    }
+}
