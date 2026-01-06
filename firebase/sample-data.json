@@ -1,0 +1,55 @@
+{
+  "servers": {
+    "minecraft-survival": {
+      "id": "minecraft-survival",
+      "name": "Minecraft Survival",
+      "gameType": "minecraft",
+      "description": "Main survival server for friends",
+      "allowedUsers": {
+        "REPLACE_WITH_YOUR_FIREBASE_UID": true
+      },
+      "status": {
+        "state": "stopped",
+        "lastUpdated": 0,
+        "message": "Server initialized"
+      },
+      "config": {
+        "executablePath": "C:\\GameServers\\Minecraft\\start.bat",
+        "workingDirectory": "C:\\GameServers\\Minecraft",
+        "arguments": [],
+        "stopCommand": "stop",
+        "stopTimeout": 30
+      }
+    },
+    "valheim-server": {
+      "id": "valheim-server",
+      "name": "Valheim Adventure",
+      "gameType": "valheim",
+      "description": "Valheim dedicated server",
+      "allowedUsers": {
+        "REPLACE_WITH_YOUR_FIREBASE_UID": true
+      },
+      "status": {
+        "state": "stopped",
+        "lastUpdated": 0,
+        "message": "Server initialized"
+      },
+      "config": {
+        "executablePath": "C:\\GameServers\\Valheim\\start_server.bat",
+        "workingDirectory": "C:\\GameServers\\Valheim",
+        "arguments": [],
+        "stopCommand": null,
+        "stopTimeout": 30
+      }
+    }
+  },
+  "agent": {
+    "status": {
+      "online": false,
+      "lastHeartbeat": 0,
+      "version": "1.0.0",
+      "hostname": ""
+    }
+  },
+  "users": {}
+}

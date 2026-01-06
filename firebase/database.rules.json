@@ -1,0 +1,105 @@
+{
+  "rules": {
+    // =========================================================================
+    // PHOENIX HOSTING - FIREBASE SECURITY RULES
+    // =========================================================================
+    // These rules enforce:
+    // 1. Authentication required for all access
+    // 2. Users can only see servers they're authorized for
+    // 3. Users can only create commands for their servers
+    // 4. Only the Agent (Admin SDK) can update server status
+    // 5. Data validation on all writes
+    // =========================================================================
+
+    // -------------------------------------------------------------------------
+    // USERS - User profile data
+    // -------------------------------------------------------------------------
+    "users": {
+      "$uid": {
+        // Users can only read their own profile
+        ".read": "auth != null && auth.uid == $uid",
+        
+        // Users can write their own profile
+        ".write": "auth != null && auth.uid == $uid",
+        
+        // Validate user profile structure
+        ".validate": "newData.hasChildren(['email', 'lastLogin'])"
+      }
+    },
+
+    // -------------------------------------------------------------------------
+    // SERVERS - Game server configuration and status
+    // -------------------------------------------------------------------------
+    "servers": {
+      "$serverId": {
+        // Read: User must be authenticated AND listed in allowedUsers
+        ".read": "auth != null && data.child('allowedUsers').child(auth.uid).val() == true",
+        
+        // Write to root server object: Denied (admin only via Admin SDK)
+        // This prevents users from modifying server config
+        ".write": false,
+        
+        // Status sub-path: Only Agent can write (uses Admin SDK which bypasses rules)
+        // This is implicitly handled since .write is false for users
+        "status": {
+          // Status updates are handled by Admin SDK (agent)
+          // No user can directly modify status
+        },
+        
+        // Config sub-path: Admin only
+        "config": {
+          // Configuration is managed by admin only
+        },
+        
+        // AllowedUsers: Admin only
+        "allowedUsers": {
+          // User list is managed by admin only
+        }
+      },
+      
+      // Allow listing servers for index queries
+      // Each server's read is controlled by the $serverId rule above
+      ".read": false,
+      ".write": false
+    },
+
+    // -------------------------------------------------------------------------
+    // COMMANDS - Command queue for server operations
+    // -------------------------------------------------------------------------
+    "commands": {
+      "$commandId": {
+        // Read: User can read if they have access to the target server
+        ".read": "auth != null && root.child('servers').child(data.child('serverId').val()).child('allowedUsers').child(auth.uid).val() == true",
+        
+        // Write: Only create new commands (not modify existing)
+        ".write": "auth != null && !data.exists() && newData.exists()",
+        
+        // Validate command structure
+        ".validate": "newData.hasChildren(['serverId', 'action', 'requestedBy', 'requestedAt', 'status']) && newData.child('requestedBy').val() == auth.uid && newData.child('status').val() == 'pending' && newData.child('action').val().matches(/^(start|stop|restart)$/) && root.child('servers').child(newData.child('serverId').val()).child('allowedUsers').child(auth.uid).val() == true"
+      },
+      
+      // Deny listing all commands (must access by ID)
+      ".read": false,
+      ".write": false
+    },
+
+    // -------------------------------------------------------------------------
+    // AGENT - Agent status and metadata
+    // -------------------------------------------------------------------------
+    "agent": {
+      "status": {
+        // Anyone authenticated can read agent status
+        ".read": "auth != null",
+        
+        // Only Agent (Admin SDK) can write
+        ".write": false
+      }
+    },
+
+    // -------------------------------------------------------------------------
+    // DEFAULT - Deny all other access
+    // -------------------------------------------------------------------------
+    ".read": false,
+    ".write": false
+  }
+}
