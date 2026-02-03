@@ -15,12 +15,8 @@ from threading import Lock
 from dataclasses import dataclass
 from collections import defaultdict
 
-try:
-    from server_manager import ServerManager, ServerState
-    from logger import security_logger
-except ImportError:
-    from .server_manager import ServerManager, ServerState
-    from .logger import security_logger
+from server_manager import ServerManager, ServerState
+from logger import security_logger
 
 logger = logging.getLogger('phoenix.command')
 

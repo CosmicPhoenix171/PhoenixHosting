@@ -14,26 +14,11 @@ import signal
 from typing import Dict, Any, Optional
 from threading import Thread, Event
 
-# Try REST client first (simpler setup), fall back to Admin SDK
-try:
-    from firebase_rest_client import FirebaseRESTClient as FirebaseClient
-except ImportError:
-    try:
-        from .firebase_rest_client import FirebaseRESTClient as FirebaseClient
-    except ImportError:
-        try:
-            from firebase_client import FirebaseClient
-        except ImportError:
-            from .firebase_client import FirebaseClient
-
-try:
-    from server_manager import ServerManager
-    from command_processor import CommandProcessor
-    from logger import get_logger, security_logger
-except ImportError:
-    from .server_manager import ServerManager
-    from .command_processor import CommandProcessor
-    from .logger import get_logger, security_logger
+# Import components (absolute imports for PyInstaller compatibility)
+from firebase_rest_client import FirebaseRESTClient as FirebaseClient
+from server_manager import ServerManager
+from command_processor import CommandProcessor
+from logger import get_logger, security_logger
 
 logger = get_logger('agent')
 

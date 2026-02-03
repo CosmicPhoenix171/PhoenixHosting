@@ -6,9 +6,7 @@ with local game server processes. It listens for commands from the cloud
 and executes Start/Stop/Restart operations on game servers.
 
 Usage:
-    python agent.py              # Run in foreground (for testing)
-    python agent.py --install    # Install as Windows service
-    python agent.py --uninstall  # Remove Windows service
+    python agent.py              # Run in foreground
 """
 
 import sys
@@ -17,17 +15,17 @@ import argparse
 import logging
 from pathlib import Path
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
+# Add src to path for development
+src_path = Path(__file__).parent / 'src'
+if src_path.exists():
+    sys.path.insert(0, str(src_path))
 
 try:
     from phoenix_agent import PhoenixAgent
     from config import load_config, get_config_path
     from logger import setup_logging
 except ImportError as e:
-    print(f'❌ Failed to import required modules: {e}')
-    print('\nMake sure all dependencies are installed:')
-    print('  pip install requests psutil')
+    print(f'❌ Failed to import modules: {e}')
     print('\nPress Enter to exit...')
     input()
     sys.exit(1)
