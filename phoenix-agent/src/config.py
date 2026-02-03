@@ -28,6 +28,18 @@ DEFAULT_CONFIG = {
 }
 
 
+def get_app_data_dir() -> Path:
+    """Get the Phoenix Agent data directory in user's AppData."""
+    if os.name == 'nt':  # Windows
+        base = Path(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')))
+    else:  # Linux/Mac
+        base = Path(os.path.expanduser('~/.config'))
+    
+    app_dir = base / 'PhoenixAgent'
+    app_dir.mkdir(parents=True, exist_ok=True)
+    return app_dir
+
+
 def get_config_path() -> Path:
     """Get the default configuration file path."""
     # Check environment variable first
@@ -35,9 +47,8 @@ def get_config_path() -> Path:
     if env_path:
         return Path(env_path)
     
-    # Default to config directory relative to agent.py
-    base_dir = Path(__file__).parent.parent
-    return base_dir / 'config' / 'agent-config.json'
+    # Use AppData for config (user-writable location)
+    return get_app_data_dir() / 'agent-config.json'
 
 
 def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:

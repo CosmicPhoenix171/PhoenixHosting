@@ -12,6 +12,7 @@ import time
 import random
 import string
 import socket
+import os
 try:
     import requests
 except ImportError:
@@ -29,6 +30,18 @@ FIREBASE_CONFIG = {
     "databaseURL": "https://server-14376-default-rtdb.firebaseio.com",
     "projectId": "server-14376"
 }
+
+
+def get_app_data_dir() -> Path:
+    """Get the Phoenix Agent data directory in user's AppData."""
+    if os.name == 'nt':  # Windows
+        base = Path(os.environ.get('LOCALAPPDATA', os.path.expanduser('~')))
+    else:  # Linux/Mac
+        base = Path(os.path.expanduser('~/.config'))
+    
+    app_dir = base / 'PhoenixAgent'
+    app_dir.mkdir(parents=True, exist_ok=True)
+    return app_dir
 
 
 class FirebaseRESTClient:
@@ -63,7 +76,7 @@ class FirebaseRESTClient:
     
     def _get_or_create_agent_id(self) -> str:
         """Get or create a unique agent ID."""
-        config_path = Path('config/agent-identity.json')
+        config_path = get_app_data_dir() / 'agent-identity.json'
         
         if config_path.exists():
             try:
@@ -95,7 +108,7 @@ class FirebaseRESTClient:
     
     def _load_pairing(self):
         """Load saved pairing information."""
-        pairing_path = Path('config/pairing.json')
+        pairing_path = get_app_data_dir() / 'pairing.json'
         if pairing_path.exists():
             try:
                 with open(pairing_path, 'r') as f:
@@ -108,8 +121,7 @@ class FirebaseRESTClient:
     
     def _save_pairing(self):
         """Save pairing information."""
-        pairing_path = Path('config/pairing.json')
-        pairing_path.parent.mkdir(parents=True, exist_ok=True)
+        pairing_path = get_app_data_dir() / 'pairing.json'
         
         with open(pairing_path, 'w') as f:
             json.dump({
