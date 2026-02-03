@@ -263,14 +263,8 @@ class FirebaseRESTClient:
             'servers': self._get_server_list()
         }
         
+        # Write to agents path (open for agent writes)
         self._db_request(f'agents/{self.agent_id}', 'PUT', agent_data)
-        
-        # Also register under user's agents list
-        self._db_request(f'users/{self.user_id}/agents/{self.agent_id}', 'PUT', {
-            'agent_id': self.agent_id,
-            'hostname': hostname,
-            'added_at': int(time.time() * 1000)
-        })
         
         logger.info(f'Registered agent: {self.agent_id}')
     
