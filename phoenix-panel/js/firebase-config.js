@@ -24,13 +24,13 @@ import { getDatabase } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-
 // =============================================================================
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCR6FUIy404UPYNSVV8zZ6CpYGUFewcFjk",
+    authDomain: "server-14376.firebaseapp.com",
+    databaseURL: "https://server-14376-default-rtdb.firebaseio.com",
+    projectId: "server-14376",
+    storageBucket: "server-14376.firebasestorage.app",
+    messagingSenderId: "997048490934",
+    appId: "1:997048490934:web:fa6c0ba6c651a7f2977f17"
 };
 
 // =============================================================================
