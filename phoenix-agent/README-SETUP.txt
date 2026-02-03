@@ -1,120 +1,97 @@
 ================================================================================
-                         PHOENIX AGENT - SETUP GUIDE
+                         PHOENIX AGENT - QUICK START
 ================================================================================
 
-Thank you for downloading Phoenix Agent! Follow these steps to get started.
+Getting started is easy! Just 3 steps:
 
 --------------------------------------------------------------------------------
-STEP 1: GET YOUR SERVICE ACCOUNT KEY
+STEP 1: DOWNLOAD & EXTRACT
 --------------------------------------------------------------------------------
 
-1. Go to Firebase Console: https://console.firebase.google.com
-2. Select your project (or create one)
-3. Click the gear icon ⚙️ → Project Settings
-4. Go to "Service Accounts" tab
-5. Click "Generate new private key"
-6. Save the downloaded JSON file as "service-account.json"
+Extract this ZIP file to a folder on your computer.
+   Example: C:\PhoenixAgent
+
+Your folder should contain:
+   - PhoenixAgent.exe
+   - agent-config.example.json
+   - README.txt (this file)
 
 --------------------------------------------------------------------------------
-STEP 2: CONFIGURE THE AGENT
+STEP 2: CONFIGURE YOUR SERVERS
 --------------------------------------------------------------------------------
 
-1. Create a folder for your agent (e.g., C:\PhoenixAgent)
-2. Copy PhoenixAgent.exe to that folder
-3. Create a "config" subfolder
-4. Place your service-account.json in the config folder
-5. Create agent-config.json in the config folder with this template:
+1. Create a "config" folder
+
+2. Copy "agent-config.example.json" to "config\agent-config.json"
+
+3. Edit config\agent-config.json to add your game servers:
 
 {
-  "agent_id": "my-server",
-  "firebase": {
-    "database_url": "https://YOUR-PROJECT.firebaseio.com",
-    "service_account_path": "config/service-account.json"
-  },
-  "servers": {
-    "minecraft": {
-      "name": "Minecraft Server",
-      "type": "minecraft",
-      "path": "C:/Servers/Minecraft",
-      "executable": "server.jar",
-      "start_command": "java -Xmx4G -jar server.jar nogui",
-      "stop_command": "stop"
+    "agent": {
+        "heartbeatInterval": 30,
+        "logLevel": "INFO"
+    },
+    "servers": {
+        "my-minecraft": {
+            "name": "My Minecraft Server",
+            "gameType": "minecraft",
+            "executablePath": "C:\\Servers\\Minecraft\\start.bat",
+            "workingDirectory": "C:\\Servers\\Minecraft",
+            "stopCommand": "stop"
+        }
     }
-  },
-  "check_interval": 5,
-  "heartbeat_interval": 30
 }
 
---------------------------------------------------------------------------------
-STEP 3: FOLDER STRUCTURE
---------------------------------------------------------------------------------
-
-Your folder should look like this:
-
-C:\PhoenixAgent\
-├── PhoenixAgent.exe
-└── config\
-    ├── agent-config.json
-    └── service-account.json
+Supported game types:
+   - minecraft
+   - hytale  
+   - valheim
+   - terraria
+   - palworld
+   - custom (any game)
 
 --------------------------------------------------------------------------------
-STEP 4: RUN THE AGENT
+STEP 3: RUN & PAIR
 --------------------------------------------------------------------------------
 
-Option A - Run directly:
-   Double-click PhoenixAgent.exe
+1. Double-click PhoenixAgent.exe
 
-Option B - Run from command line:
-   cd C:\PhoenixAgent
-   PhoenixAgent.exe
+2. You'll see a 6-character pairing code (e.g., "ABC123")
 
-Option C - Install as Windows Service (requires admin):
+3. Go to: https://cosmicphoenix171.github.io/PhoenixHosting/phoenix-panel/
+
+4. Sign in with Google
+
+5. Click "Add Agent" and enter your pairing code
+
+6. Done! Your servers will appear in the panel.
+
+================================================================================
+
+THAT'S IT! No Firebase setup, no service accounts, no complicated config.
+
+================================================================================
+                              CONFIGURATION TIPS
+================================================================================
+
+ADDING MORE SERVERS:
+Just add more entries to the "servers" section in agent-config.json
+
+RUNNING AS A SERVICE (Optional):
    Open PowerShell as Administrator and run:
    sc.exe create PhoenixAgent binPath= "C:\PhoenixAgent\PhoenixAgent.exe"
+   sc.exe config PhoenixAgent start= auto
    sc.exe start PhoenixAgent
 
---------------------------------------------------------------------------------
-STEP 5: ACCESS THE PANEL
---------------------------------------------------------------------------------
+RESETTING PAIRING:
+   Delete config\pairing.json and restart the agent
 
-1. Go to: https://cosmicphoenix171.github.io/PhoenixHosting/phoenix-panel/
-2. Sign in with Google
-3. Your server should appear once the agent connects!
+LOGS:
+   Check the logs folder for troubleshooting
 
---------------------------------------------------------------------------------
-CONFIGURATION OPTIONS
---------------------------------------------------------------------------------
-
-agent_id          - Unique identifier for this agent
-database_url      - Your Firebase Realtime Database URL
-check_interval    - How often to check for commands (seconds)
-heartbeat_interval - How often to send status updates (seconds)
-
-Server Types:
-- minecraft       - Minecraft Java Edition
-- hytale          - Hytale Dedicated Server
-- custom          - Any custom game server
-
---------------------------------------------------------------------------------
-TROUBLESHOOTING
---------------------------------------------------------------------------------
-
-"Agent not connecting"
-   → Check your database_url matches your Firebase project
-   → Verify service-account.json is valid
-
-"Permission denied"
-   → Run as Administrator for service installation
-   → Check Firebase database rules allow authenticated access
-
-"Server won't start"
-   → Verify the server path exists
-   → Check the start_command is correct
-   → Ensure required dependencies (Java, etc.) are installed
-
---------------------------------------------------------------------------------
-SUPPORT
---------------------------------------------------------------------------------
+================================================================================
+                                 SUPPORT
+================================================================================
 
 GitHub: https://github.com/CosmicPhoenix171/PhoenixHosting
 Issues: https://github.com/CosmicPhoenix171/PhoenixHosting/issues

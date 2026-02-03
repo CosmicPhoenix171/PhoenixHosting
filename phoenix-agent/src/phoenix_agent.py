@@ -14,7 +14,12 @@ import signal
 from typing import Dict, Any, Optional
 from threading import Thread, Event
 
-from .firebase_client import FirebaseClient
+# Try REST client first (simpler setup), fall back to Admin SDK
+try:
+    from .firebase_rest_client import FirebaseRESTClient as FirebaseClient
+except ImportError:
+    from .firebase_client import FirebaseClient
+    
 from .server_manager import ServerManager
 from .command_processor import CommandProcessor
 from .logger import get_logger, security_logger

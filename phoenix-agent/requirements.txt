@@ -1,7 +1,10 @@
 # Phoenix Agent Dependencies
 # Install with: pip install -r requirements.txt
 
-# Firebase Admin SDK for secure cloud communication
+# HTTP requests for Firebase REST API
+requests>=2.31.0
+
+# Firebase Admin SDK (optional - for advanced setups)
 firebase-admin>=6.2.0
 
 # Process management

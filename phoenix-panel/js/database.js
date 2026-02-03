@@ -438,6 +438,252 @@ export function getGameDisplay(gameType) {
 }
 
 // =============================================================================
+// Agent Pairing
+// =============================================================================
+
+/**
+ * Pair with an agent using a pairing code
+ * @param {string} pairingCode - The 6-character pairing code
+ * @returns {Promise<Object>} The paired agent info
+ */
+export async function pairAgent(pairingCode) {
+    if (!isConfigValid || !database) {
+        throw new Error('Database not available');
+    }
+    
+    const user = getCurrentUser();
+    if (!user) {
+        throw new Error('You must be signed in to pair agents');
+    }
+    
+    // Normalize code (uppercase, no spaces)
+    const code = pairingCode.trim().toUpperCase();
+    
+    if (code.length !== 6) {
+        throw new Error('Pairing code must be 6 characters');
+    }
+    
+    try {
+        // Check if pairing request exists
+        const pairingRef = ref(database, `pairing_requests/${code}`);
+        const snapshot = await get(pairingRef);
+        
+        if (!snapshot.exists()) {
+            throw new Error('Invalid pairing code. Make sure the agent is running and showing this code.');
+        }
+        
+        const pairingData = snapshot.val();
+        
+        if (pairingData.status === 'paired') {
+            throw new Error('This code has already been used. Restart the agent for a new code.');
+        }
+        
+        // Update pairing request with user info
+        await set(pairingRef, {
+            ...pairingData,
+            status: 'paired',
+            user_id: user.uid,
+            user_email: user.email,
+            paired_at: Date.now()
+        });
+        
+        console.log('✅ Agent paired successfully:', pairingData.agent_id);
+        
+        return {
+            agentId: pairingData.agent_id,
+            hostname: pairingData.hostname
+        };
+        
+    } catch (error) {
+        console.error('❌ Pairing error:', error);
+        throw error;
+    }
+}
+
+/**
+ * Get all agents for the current user
+ * @returns {Promise<Array>} Array of agent objects
+ */
+export async function getUserAgents() {
+    if (!isConfigValid || !database) {
+        return [];
+    }
+    
+    const user = getCurrentUser();
+    if (!user) {
+        return [];
+    }
+    
+    try {
+        const agentsRef = ref(database, 'agents');
+        const snapshot = await get(agentsRef);
+        
+        if (!snapshot.exists()) {
+            return [];
+        }
+        
+        const agents = [];
+        snapshot.forEach((childSnapshot) => {
+            const agent = childSnapshot.val();
+            if (agent.user_id === user.uid) {
+                agent.id = childSnapshot.key;
+                agents.push(agent);
+            }
+        });
+        
+        return agents;
+    } catch (error) {
+        console.error('❌ Error fetching agents:', error);
+        return [];
+    }
+}
+
+/**
+ * Subscribe to user's agents
+ * @param {Function} callback - Function to call when agents update
+ * @returns {Function} Unsubscribe function
+ */
+export function subscribeToUserAgents(callback) {
+    if (!isConfigValid || !database) {
+        return () => {};
+    }
+    
+    const user = getCurrentUser();
+    if (!user) {
+        return () => {};
+    }
+    
+    const agentsRef = ref(database, 'agents');
+    
+    const handleUpdate = (snapshot) => {
+        const agents = [];
+        
+        if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+                const agent = childSnapshot.val();
+                if (agent.user_id === user.uid) {
+                    agent.id = childSnapshot.key;
+                    agents.push(agent);
+                }
+            });
+        }
+        
+        callback(agents);
+    };
+    
+    onValue(agentsRef, handleUpdate);
+    activeListeners.set('user-agents', agentsRef);
+    
+    return () => {
+        off(agentsRef);
+        activeListeners.delete('user-agents');
+    };
+}
+
+/**
+ * Subscribe to servers from user's agents
+ * @param {Function} callback - Function to call with servers array
+ * @returns {Function} Unsubscribe function
+ */
+export function subscribeToAgentServers(callback) {
+    if (!isConfigValid || !database) {
+        callback([]);
+        return () => {};
+    }
+    
+    const user = getCurrentUser();
+    if (!user) {
+        callback([]);
+        return () => {};
+    }
+    
+    const agentsRef = ref(database, 'agents');
+    
+    const handleUpdate = (snapshot) => {
+        const servers = [];
+        
+        if (snapshot.exists()) {
+            snapshot.forEach((agentSnapshot) => {
+                const agent = agentSnapshot.val();
+                const agentId = agentSnapshot.key;
+                
+                // Only show servers from user's agents
+                if (agent.user_id === user.uid && agent.servers) {
+                    Object.entries(agent.servers).forEach(([serverId, serverData]) => {
+                        servers.push({
+                            id: `${agentId}/${serverId}`,
+                            agentId: agentId,
+                            serverId: serverId,
+                            name: serverData.name || serverId,
+                            gameType: serverData.gameType || 'unknown',
+                            status: serverData.status || 'unknown',
+                            agentOnline: agent.online || false,
+                            agentHostname: agent.hostname || 'Unknown',
+                            lastSeen: agent.last_seen,
+                            ...serverData
+                        });
+                    });
+                }
+            });
+        }
+        
+        callback(servers);
+    };
+    
+    onValue(agentsRef, handleUpdate);
+    activeListeners.set('agent-servers', agentsRef);
+    
+    return () => {
+        off(agentsRef);
+        activeListeners.delete('agent-servers');
+    };
+}
+
+/**
+ * Send a command to an agent's server
+ * @param {string} agentId - The agent ID
+ * @param {string} serverId - The server ID on that agent
+ * @param {string} action - The action (start/stop/restart)
+ * @returns {Promise<string>} The command ID
+ */
+export async function sendAgentCommand(agentId, serverId, action) {
+    if (!isConfigValid || !database) {
+        throw new Error('Database not available');
+    }
+    
+    const user = getCurrentUser();
+    if (!user) {
+        throw new Error('You must be signed in');
+    }
+    
+    const VALID_ACTIONS = ['start', 'stop', 'restart'];
+    if (!VALID_ACTIONS.includes(action)) {
+        throw new Error(`Invalid action: ${action}`);
+    }
+    
+    try {
+        const commandsRef = ref(database, `agents/${agentId}/commands`);
+        const newCommandRef = push(commandsRef);
+        
+        const command = {
+            serverId: serverId,
+            action: action,
+            status: 'pending',
+            requestedBy: user.uid,
+            requestedAt: Date.now()
+        };
+        
+        await set(newCommandRef, command);
+        console.log(`✅ Command sent to agent ${agentId}: ${action} ${serverId}`);
+        
+        return newCommandRef.key;
+    } catch (error) {
+        console.error('❌ Error sending command:', error);
+        throw new Error('Failed to send command');
+    }
+}
+
+// =============================================================================
 // Exports
 // =============================================================================
 
@@ -445,11 +691,16 @@ export default {
     fetchUserServers,
     subscribeToServers,
     subscribeToServerStatus,
+    subscribeToAgentServers,
     sendCommand,
+    sendAgentCommand,
     checkServerAccess,
     subscribeToCommand,
     getServerCommands,
     subscribeToAgentStatus,
+    subscribeToUserAgents,
+    pairAgent,
+    getUserAgents,
     cleanupListeners,
     formatTimestamp,
     getStatusDisplay,

@@ -16,9 +16,12 @@ import {
 import { 
     subscribeToServers, 
     subscribeToAgentStatus,
+    subscribeToAgentServers,
     sendCommand,
+    sendAgentCommand,
     getServerCommands,
-    cleanupListeners 
+    cleanupListeners,
+    pairAgent 
 } from './database.js';
 import {
     showLoadingScreen,
@@ -105,14 +108,19 @@ function handleAuthStateChange(user) {
 async function initializeDashboard() {
     showServersLoading();
     
-    // Subscribe to agent status
-    unsubscribeAgent = subscribeToAgentStatus((status) => {
-        updateAgentStatus(status);
-    });
-    
-    // Subscribe to servers
-    unsubscribeServers = subscribeToServers((servers) => {
+    // Subscribe to agent-based servers (new flow)
+    unsubscribeServers = subscribeToAgentServers((servers) => {
         currentServers = servers;
+        
+        // Update agent status based on servers
+        if (servers.length > 0) {
+            const anyOnline = servers.some(s => s.agentOnline);
+            updateAgentStatus({
+                online: anyOnline,
+                message: anyOnline ? 'Agent connected' : 'Agent offline'
+            });
+        }
+        
         renderServers(servers, {
             start: handleStartServer,
             stop: handleStopServer,
@@ -154,6 +162,18 @@ function setupEventListeners() {
     
     // Refresh
     elements.refreshBtn?.addEventListener('click', handleRefresh);
+    
+    // Add Agent
+    document.getElementById('add-agent-btn')?.addEventListener('click', showAddAgentModal);
+    document.getElementById('add-agent-close')?.addEventListener('click', hideAddAgentModal);
+    document.getElementById('add-agent-cancel')?.addEventListener('click', hideAddAgentModal);
+    document.getElementById('add-agent-submit')?.addEventListener('click', handlePairAgent);
+    document.getElementById('pairing-code-input')?.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') handlePairAgent();
+    });
+    
+    // Close modal on backdrop click
+    document.querySelector('#add-agent-modal .modal-backdrop')?.addEventListener('click', hideAddAgentModal);
     
     // Keyboard shortcuts
     document.addEventListener('keydown', handleKeydown);
@@ -314,23 +334,32 @@ async function handleRestartServer(serverId, server) {
 
 /**
  * Execute a command on a server
- * @param {string} serverId - The server ID
+ * @param {string} combinedId - The combined agentId/serverId
  * @param {string} action - The action to perform
  */
-async function executeCommand(serverId, action) {
-    setActionLoading(serverId, action, true);
+async function executeCommand(combinedId, action) {
+    setActionLoading(combinedId, action, true);
     
     try {
-        const commandId = await sendCommand(serverId, action);
+        // Parse the combined ID (format: agentId/serverId)
+        const [agentId, serverId] = combinedId.split('/');
+        
+        if (agentId && serverId) {
+            // New agent-based command
+            await sendAgentCommand(agentId, serverId, action);
+        } else {
+            // Legacy command (fallback)
+            await sendCommand(combinedId, action);
+        }
         
         showToast('success', 'Command Sent', 
             `${action.charAt(0).toUpperCase() + action.slice(1)} command sent successfully.`
         );
         
-        console.log(`✅ Command ${commandId} sent: ${action} on ${serverId}`);
+        console.log(`✅ Command sent: ${action} on ${combinedId}`);
     } catch (error) {
         showToast('error', 'Command Failed', error.message);
-        setActionLoading(serverId, action, false);
+        setActionLoading(combinedId, action, false);
     }
 }
 
@@ -345,6 +374,76 @@ async function handleShowDetails(serverId, server) {
         showDetailsModal(server, commands);
     } catch (error) {
         showDetailsModal(server, []);
+    }
+}
+
+// =============================================================================
+// Agent Pairing
+// =============================================================================
+
+/**
+ * Show the Add Agent modal
+ */
+function showAddAgentModal() {
+    const modal = document.getElementById('add-agent-modal');
+    const input = document.getElementById('pairing-code-input');
+    const error = document.getElementById('pairing-error');
+    
+    if (modal) {
+        modal.classList.remove('hidden');
+        input.value = '';
+        error.style.display = 'none';
+        input.focus();
+    }
+}
+
+/**
+ * Hide the Add Agent modal
+ */
+function hideAddAgentModal() {
+    const modal = document.getElementById('add-agent-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+/**
+ * Handle agent pairing
+ */
+async function handlePairAgent() {
+    const input = document.getElementById('pairing-code-input');
+    const error = document.getElementById('pairing-error');
+    const submitBtn = document.getElementById('add-agent-submit');
+    
+    const code = input.value.trim().toUpperCase();
+    
+    if (code.length !== 6) {
+        error.textContent = 'Please enter a 6-character code';
+        error.style.display = 'block';
+        return;
+    }
+    
+    try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Pairing...';
+        error.style.display = 'none';
+        
+        const result = await pairAgent(code);
+        
+        hideAddAgentModal();
+        showToast('success', 'Agent Paired!', 
+            `Successfully connected to ${result.hostname}. Your servers will appear shortly.`
+        );
+        
+        // Refresh the dashboard
+        handleRefresh();
+        
+    } catch (err) {
+        error.textContent = err.message;
+        error.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Pair Agent';
     }
 }
 

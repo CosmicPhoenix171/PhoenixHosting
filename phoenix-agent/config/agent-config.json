@@ -1,8 +1,4 @@
 {
-    "firebase": {
-        "serviceAccountPath": "config/service-account.json",
-        "databaseURL": "https://server-14376-default-rtdb.firebaseio.com"
-    },
     "agent": {
         "heartbeatInterval": 30,
         "commandTimeout": 300,
