@@ -1,132 +1,99 @@
 # 🔥 Phoenix Hosting
 
-**A secure, multi-user, multi-game hosting platform for remote server management.**
+**Host game servers on your PC. Control them from anywhere.**
 
-Phoenix Hosting enables you to control game servers running on a private Windows machine through a secure web interface, without exposing your home network to the internet.
-
----
-
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Components](#components)
-- [Quick Start](#quick-start)
-- [Documentation](#documentation)
-- [Security](#security)
-- [License](#license)
+Phoenix Hosting lets you manage game servers running on your home computer through a simple web interface - no port forwarding, no complicated setup.
 
 ---
 
-## 🎯 Overview
+## ✨ Features
 
-Phoenix Hosting solves the challenge of remotely managing game servers on a home PC:
-
-- **No port forwarding required** - Your PC stays invisible to the internet
-- **Secure authentication** - Google sign-in via Firebase
-- **Permission-based access** - Users only see servers they're allowed to control
-- **Real-time updates** - Server status syncs instantly across all clients
-- **Reliable agent** - Auto-recovery from crashes, disconnects, and failures
-
-### Key Features
-
-| Feature | Description |
-|---------|-------------|
-| 🔐 Google Auth | Secure sign-in with Google accounts |
-| 👥 Multi-User | Multiple users with individual permissions |
-| 🎮 Multi-Game | Support for various game server types |
-| ⚡ Real-Time | Instant status updates via Firebase |
-| 🛡️ Secure | No direct access to host machine |
-| 🔄 Resilient | Auto-recovery and error handling |
+- **Zero Configuration** - Just download, run, and pair
+- **No Port Forwarding** - Your PC stays secure
+- **Web Control Panel** - Start/stop servers from any device
+- **Multiple Games** - Minecraft, Valheim, Terraria, and more
+- **Real-Time Status** - See server state instantly
 
 ---
 
-## 🏗️ Architecture
+## 🚀 Quick Start (3 Steps)
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                              INTERNET                                    │
-└─────────────────────────────────────────────────────────────────────────┘
-                    │                              │
-                    │ HTTPS                        │ HTTPS
-                    ▼                              ▼
-    ┌───────────────────────────┐    ┌───────────────────────────┐
-    │      Phoenix Panel        │    │     Firebase Cloud        │
-    │    (GitHub Pages)         │◄──►│  • Authentication         │
-    │                           │    │  • Realtime Database      │
-    │  • User Interface         │    │  • Security Rules         │
-    │  • Google Sign-In         │    │  • Command Queue          │
-    │  • Server Dashboard       │    │  • Server Status          │
-    │  • Action Buttons         │    │  • User Permissions       │
-    └───────────────────────────┘    └───────────────────────────┘
-                                                   │
-                                                   │ Secure WebSocket
-                                                   │ (Outbound Only)
-                                                   ▼
-    ┌─────────────────────────────────────────────────────────────────────┐
-    │                     YOUR PRIVATE NETWORK                             │
-    │  ┌───────────────────────────────────────────────────────────────┐  │
-    │  │                    Windows 11 Host                             │  │
-    │  │                                                                │  │
-    │  │   ┌─────────────────────────────────────────────────────┐     │  │
-    │  │   │              Phoenix Agent                           │     │  │
-    │  │   │  • Listens to Firebase command queue                 │     │  │
-    │  │   │  • Validates and executes commands                   │     │  │
-    │  │   │  • Updates server status                             │     │  │
-    │  │   │  • Manages game server processes                     │     │  │
-    │  │   └─────────────────────────────────────────────────────┘     │  │
-    │  │                          │                                     │  │
-    │  │            ┌─────────────┼─────────────┐                       │  │
-    │  │            ▼             ▼             ▼                       │  │
-    │  │   ┌─────────────┐ ┌─────────────┐ ┌─────────────┐              │  │
-    │  │   │ Minecraft   │ │ Valheim     │ │ Terraria    │              │  │
-    │  │   │ Server      │ │ Server      │ │ Server      │              │  │
-    │  │   └─────────────┘ └─────────────┘ └─────────────┘              │  │
-    │  └───────────────────────────────────────────────────────────────┘  │
-    └─────────────────────────────────────────────────────────────────────┘
+### Step 1: Download
+[**⬇️ Download Phoenix Agent**](https://github.com/CosmicPhoenix171/PhoenixHosting/releases/latest/download/PhoenixAgent-Windows.zip)
+
+### Step 2: Run
+Extract and double-click `PhoenixAgent.exe`. You'll see a **6-character pairing code**.
+
+### Step 3: Pair
+1. Go to [**Phoenix Panel**](https://cosmicphoenix171.github.io/PhoenixHosting/phoenix-panel/)
+2. Sign in with Google
+3. Click **"Add Agent"**
+4. Enter your pairing code
+
+**That's it!** Your servers will appear in the panel.
+
+---
+
+## 🎮 Adding Game Servers
+
+Edit `config/agent-config.json` to add your servers:
+
+```json
+{
+    "servers": {
+        "my-minecraft": {
+            "name": "My Minecraft Server",
+            "gameType": "minecraft",
+            "executablePath": "C:\\Servers\\Minecraft\\start.bat",
+            "workingDirectory": "C:\\Servers\\Minecraft",
+            "stopCommand": "stop"
+        }
+    }
+}
 ```
 
----
-
-## 📦 Components
-
-### 1. Phoenix Panel (Web UI)
-- **Location:** `phoenix-panel/`
-- **Hosted on:** GitHub Pages
-- **Purpose:** User-facing dashboard for server management
-- **Technologies:** HTML, CSS, JavaScript, Firebase SDK
-
-### 2. Phoenix Agent (Windows Service)
-- **Location:** `phoenix-agent/`
-- **Runs on:** Your Windows 11 host machine
-- **Purpose:** Executes commands and manages server processes
-- **Technologies:** Python 3.10+, Firebase Admin SDK
-
-### 3. Phoenix Cloud (Firebase)
-- **Location:** `firebase/`
-- **Purpose:** Authentication, database, security rules
-- **Services:** Firebase Auth, Realtime Database
+Restart the agent and your servers appear in the web panel!
 
 ---
 
-## 🚀 Quick Start
+## 🏗️ How It Works
 
-### Prerequisites
+```
+Your Phone/PC                    Cloud                     Your Home PC
+     │                            │                             │
+     │   1. Click "Start"         │                             │
+     └───────────────────────────►│                             │
+                                  │   2. Command sent           │
+                                  └────────────────────────────►│
+                                                                │
+                                  │   3. Status update          │
+                                  │◄────────────────────────────┘
+     │   4. "Running" ✓           │
+     │◄───────────────────────────┘
+```
 
-- Windows 11 host machine
-- Python 3.10+ installed
-- Firebase account (free tier works)
-- GitHub account (for hosting Panel)
+- **No ports opened** on your home network
+- All communication goes through Firebase (encrypted)
+- Your PC only makes outbound connections
 
-### Installation Overview
+---
 
-1. **Set up Firebase** → See [docs/SETUP.md](docs/SETUP.md)
-2. **Deploy Phoenix Panel** → Push `phoenix-panel/` to GitHub Pages
-3. **Install Phoenix Agent** → Run on your Windows host
-4. **Configure Servers** → Add servers via Firebase console
-5. **Invite Users** → Set permissions in Firebase
+## 📦 What's Included
 
-Detailed instructions: [docs/SETUP.md](docs/SETUP.md)
+| Component | Description |
+|-----------|-------------|
+| **Phoenix Panel** | Web dashboard (hosted on GitHub Pages) |
+| **Phoenix Agent** | Windows app that runs on your server PC |
+| **Firebase Backend** | Handles auth and real-time sync |
+
+---
+
+## 🔐 Security
+
+- ✅ Google authentication required
+- ✅ No inbound connections to your PC
+- ✅ Each user only sees their own servers
+- ✅ All commands validated before execution
 
 ---
 
@@ -134,61 +101,23 @@ Detailed instructions: [docs/SETUP.md](docs/SETUP.md)
 
 | Document | Description |
 |----------|-------------|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design and data flow |
-| [SETUP.md](docs/SETUP.md) | Installation and configuration |
-| [SECURITY.md](docs/SECURITY.md) | Security model and best practices |
-| [TESTING.md](docs/TESTING.md) | How to verify the system works |
-| [MAINTENANCE.md](docs/MAINTENANCE.md) | Ongoing operation and troubleshooting |
+| [SETUP.md](docs/SETUP.md) | Detailed setup guide |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design |
+| [SECURITY.md](docs/SECURITY.md) | Security details |
 
 ---
 
-## 🔐 Security
+## 🤝 Links
 
-Phoenix Hosting is designed with security as a core principle:
-
-- **No inbound connections** - Agent initiates all connections outbound
-- **Firebase security rules** - Enforce permissions at the database level
-- **Command validation** - Agent validates every command before execution
-- **Audit logging** - All actions are logged with timestamps
-- **User isolation** - Users can only see/control their permitted servers
-
-See [docs/SECURITY.md](docs/SECURITY.md) for detailed security information.
-
----
-
-## 🗺️ Roadmap
-
-### Phase 1 (MVP) ✅
-- [x] User authentication
-- [x] Server status display
-- [x] Start/Stop/Restart commands
-- [x] Real-time updates
-- [x] Permission system
-
-### Phase 2 (Planned)
-- [ ] Create servers from web UI
-- [ ] Role-based permissions (Admin/Mod/User)
-- [ ] Console output streaming
-- [ ] Scheduled tasks
-
-### Phase 3 (Future)
-- [ ] Multi-agent support
-- [ ] Resource monitoring
-- [ ] Backup management
-- [ ] Mobile app
-
----
-
-## 🤝 Contributing
-
-This is a personal project, but suggestions are welcome!
+- **Web Panel:** https://cosmicphoenix171.github.io/PhoenixHosting/phoenix-panel/
+- **Downloads:** https://github.com/CosmicPhoenix171/PhoenixHosting/releases
 
 ---
 
 ## 📄 License
 
-MIT License - See LICENSE file for details.
+MIT License - See [LICENSE](LICENSE) file.
 
 ---
 
-**Built with 🔥 by Phoenix Hosting**
+**Built with 🔥 by CosmicPhoenix**
