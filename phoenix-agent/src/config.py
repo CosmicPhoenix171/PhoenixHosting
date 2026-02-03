@@ -10,6 +10,24 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 
 
+# Default configuration for new installations
+DEFAULT_CONFIG = {
+    "agent": {
+        "heartbeatInterval": 30,
+        "commandTimeout": 300,
+        "logLevel": "INFO",
+        "maxConcurrentCommands": 5,
+        "commandExpirySeconds": 300
+    },
+    "logging": {
+        "maxSizeMB": 10,
+        "backupCount": 5,
+        "retentionDays": 7
+    },
+    "servers": {}
+}
+
+
 def get_config_path() -> Path:
     """Get the default configuration file path."""
     # Check environment variable first
@@ -25,22 +43,22 @@ def get_config_path() -> Path:
 def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Load configuration from a JSON file.
+    Creates a default config if none exists.
     
     Args:
         config_path: Path to the configuration file. If None, uses default.
         
     Returns:
         Dictionary containing configuration.
-        
-    Raises:
-        FileNotFoundError: If config file doesn't exist.
-        json.JSONDecodeError: If config file is invalid JSON.
-        ValueError: If config is missing required fields.
     """
     path = Path(config_path) if config_path else get_config_path()
     
+    # Create default config if it doesn't exist
     if not path.exists():
-        raise FileNotFoundError(f'Configuration file not found: {path}')
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(DEFAULT_CONFIG, f, indent=4)
+        return DEFAULT_CONFIG.copy()
     
     with open(path, 'r', encoding='utf-8') as f:
         config = json.load(f)
@@ -64,27 +82,10 @@ def validate_config(config: Dict[str, Any]) -> None:
     Raises:
         ValueError: If required fields are missing.
     """
-    required_fields = [
-        ('firebase', 'Firebase configuration'),
-        ('firebase.serviceAccountPath', 'Firebase service account path'),
-        ('firebase.databaseURL', 'Firebase database URL'),
-    ]
-    
-    for field, description in required_fields:
-        parts = field.split('.')
-        value = config
-        for part in parts:
-            if not isinstance(value, dict) or part not in value:
-                raise ValueError(f'Missing required configuration: {description} ({field})')
-            value = value[part]
-    
-    # Validate database URL format
-    db_url = config['firebase']['databaseURL']
-    if 'YOUR_PROJECT_ID' in db_url:
-        raise ValueError(
-            'Firebase database URL not configured. '
-            'Please update config/agent-config.json with your Firebase project URL.'
-        )
+    # No required fields - the agent can run with just defaults
+    # Firebase config is optional (uses built-in Phoenix Hosting credentials)
+    # Servers config is optional (can be added from web panel)
+    pass
 
 
 def resolve_paths(config: Dict[str, Any], base_dir: Path) -> Dict[str, Any]:

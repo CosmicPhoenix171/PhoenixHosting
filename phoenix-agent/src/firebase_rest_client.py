@@ -12,7 +12,10 @@ import time
 import random
 import string
 import socket
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
 from typing import Dict, Any, Optional, Callable
 from threading import Thread, Event
 from pathlib import Path

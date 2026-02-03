@@ -81,6 +81,8 @@ def main():
         print(f'❌ Failed to load configuration: {e}')
         print(f'   Config path: {config_path}')
         print('   Please check your configuration file.')
+        print('\nPress Enter to exit...')
+        input()
         sys.exit(1)
     
     # Setup logging
@@ -104,10 +106,20 @@ def main():
         logger.info('Keyboard interrupt received')
     except Exception as e:
         logger.exception(f'Fatal error: {e}')
+        print(f'\n❌ Error: {e}')
+        print('\nPress Enter to exit...')
+        input()
         sys.exit(1)
     finally:
         logger.info('Phoenix Agent stopped')
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f'\n❌ Unexpected error: {e}')
+        import traceback
+        traceback.print_exc()
+        print('\nPress Enter to exit...')
+        input()

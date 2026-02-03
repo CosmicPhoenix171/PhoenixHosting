@@ -15,9 +15,12 @@ from threading import Lock
 from dataclasses import dataclass
 from collections import defaultdict
 
-from .server_manager import ServerManager, ServerState
-from .firebase_client import FirebaseClient
-from .logger import security_logger
+try:
+    from server_manager import ServerManager, ServerState
+    from logger import security_logger
+except ImportError:
+    from .server_manager import ServerManager, ServerState
+    from .logger import security_logger
 
 logger = logging.getLogger('phoenix.command')
 
@@ -54,7 +57,7 @@ class CommandProcessor:
     def __init__(
         self, 
         server_manager: ServerManager, 
-        firebase_client: FirebaseClient,
+        firebase_client: Any,
         config: Dict[str, Any]
     ):
         """
