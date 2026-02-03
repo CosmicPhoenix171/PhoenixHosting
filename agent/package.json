@@ -1,0 +1,25 @@
+{
+  "name": "hytale-server-agent",
+  "version": "1.0.0",
+  "description": "Agent for remote Hytale server management via GitHub",
+  "main": "agent.js",
+  "scripts": {
+    "start": "node agent.js",
+    "start:dev": "LOG_LEVEL=DEBUG node agent.js",
+    "test": "echo \"No tests configured\" && exit 0"
+  },
+  "keywords": [
+    "hytale",
+    "server",
+    "manager",
+    "agent",
+    "github"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

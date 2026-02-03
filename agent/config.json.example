@@ -1,0 +1,23 @@
+{
+    "github": {
+        "owner": "your-github-username",
+        "repo": "hytale-server-manager",
+        "branch": "main"
+    },
+    "server_dir": "C:\\HytaleServer",
+    "world_dir": "C:\\HytaleServer\\worlds\\default",
+    "backup_dir": "C:\\HytaleServer\\backups",
+    "logs_dir": "C:\\HytaleServer\\logs",
+    "log_file": "C:\\HytaleServer\\logs\\server.log",
+    "start_command": "start-server.bat",
+    "stop_command": null,
+    "updater_command": null,
+    "java_path": "java",
+    "poll_interval": 10,
+    "max_backups": 10,
+    "backup_schedule": {
+        "enabled": false,
+        "type": "interval",
+        "interval_minutes": 60
+    }
+}
