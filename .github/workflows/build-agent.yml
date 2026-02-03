@@ -1,0 +1,124 @@
+name: Build Phoenix Agent
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r phoenix-agent/requirements.txt
+
+      - name: Build EXE
+        run: |
+          cd phoenix-agent
+          pyinstaller --onefile --name PhoenixAgent --icon ../phoenix-panel/assets/favicon.ico agent.py --add-data "src;src" --hidden-import=firebase_admin --hidden-import=google.auth --hidden-import=google.oauth2
+
+      - name: Create release package
+        run: |
+          mkdir release
+          copy phoenix-agent\dist\PhoenixAgent.exe release\
+          copy phoenix-agent\config\agent-config.json release\agent-config.example.json
+          copy phoenix-agent\config\service-account.json.example release\
+          echo @echo off > release\install.bat
+          echo echo Phoenix Agent Installer >> release\install.bat
+          echo echo. >> release\install.bat
+          echo if not exist config mkdir config >> release\install.bat
+          echo if not exist config\agent-config.json copy agent-config.example.json config\agent-config.json >> release\install.bat
+          echo echo Configuration files created in config folder >> release\install.bat
+          echo echo Please edit config\agent-config.json with your settings >> release\install.bat
+          echo echo Then run PhoenixAgent.exe >> release\install.bat
+          echo pause >> release\install.bat
+
+      - name: Create ZIP
+        run: Compress-Archive -Path release\* -DestinationPath PhoenixAgent-Windows.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoenixAgent-Windows
+          path: PhoenixAgent-Windows.zip
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: PhoenixAgent-Windows.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r phoenix-agent/requirements.txt
+
+      - name: Build binary
+        run: |
+          cd phoenix-agent
+          pyinstaller --onefile --name phoenix-agent agent.py --add-data "src:src" --hidden-import=firebase_admin --hidden-import=google.auth --hidden-import=google.oauth2
+
+      - name: Create release package
+        run: |
+          mkdir -p release
+          cp phoenix-agent/dist/phoenix-agent release/
+          cp phoenix-agent/config/agent-config.json release/agent-config.example.json
+          cp phoenix-agent/config/service-account.json.example release/
+          chmod +x release/phoenix-agent
+          cat > release/install.sh << 'EOF'
+          #!/bin/bash
+          echo "Phoenix Agent Installer"
+          echo ""
+          mkdir -p config
+          if [ ! -f config/agent-config.json ]; then
+            cp agent-config.example.json config/agent-config.json
+          fi
+          echo "Configuration files created in config folder"
+          echo "Please edit config/agent-config.json with your settings"
+          echo "Then run: ./phoenix-agent"
+          EOF
+          chmod +x release/install.sh
+
+      - name: Create tarball
+        run: tar -czvf PhoenixAgent-Linux.tar.gz -C release .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhoenixAgent-Linux
+          path: PhoenixAgent-Linux.tar.gz
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: PhoenixAgent-Linux.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
