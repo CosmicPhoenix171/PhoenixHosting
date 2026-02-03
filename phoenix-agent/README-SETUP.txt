@@ -2,35 +2,43 @@
                          PHOENIX AGENT - QUICK START
 ================================================================================
 
-Getting started is easy! Just 3 steps:
+Just 2 steps to get started!
 
 --------------------------------------------------------------------------------
-STEP 1: DOWNLOAD & EXTRACT
+STEP 1: RUN THE AGENT
 --------------------------------------------------------------------------------
 
-Extract this ZIP file to a folder on your computer.
-   Example: C:\PhoenixAgent
+Double-click PhoenixAgent.exe
 
-Your folder should contain:
-   - PhoenixAgent.exe
-   - agent-config.example.json
-   - README.txt (this file)
+You'll see a 6-character pairing code like "ABC123"
 
 --------------------------------------------------------------------------------
-STEP 2: CONFIGURE YOUR SERVERS
+STEP 2: PAIR WITH THE WEB PANEL
 --------------------------------------------------------------------------------
 
-1. Create a "config" folder
+1. Go to: https://cosmicphoenix171.github.io/PhoenixHosting/phoenix-panel/
 
-2. Copy "agent-config.example.json" to "config\agent-config.json"
+2. Sign in with Google
 
-3. Edit config\agent-config.json to add your game servers:
+3. Click "Add Agent"
+
+4. Enter your pairing code
+
+5. Done! You're connected.
+
+================================================================================
+                         ADDING GAME SERVERS
+================================================================================
+
+After pairing, add your game servers by creating a config file:
+
+1. Create a folder called "config" (next to PhoenixAgent.exe)
+
+2. Create a file called "agent-config.json" inside it
+
+3. Add your servers like this:
 
 {
-    "agent": {
-        "heartbeatInterval": 30,
-        "logLevel": "INFO"
-    },
     "servers": {
         "my-minecraft": {
             "name": "My Minecraft Server",
@@ -42,56 +50,39 @@ STEP 2: CONFIGURE YOUR SERVERS
     }
 }
 
-Supported game types:
+4. Restart PhoenixAgent.exe
+
+Your servers will now appear in the web panel!
+
+--------------------------------------------------------------------------------
+SUPPORTED GAMES
+--------------------------------------------------------------------------------
+
    - minecraft
-   - hytale  
+   - hytale
    - valheim
    - terraria
    - palworld
-   - custom (any game)
-
---------------------------------------------------------------------------------
-STEP 3: RUN & PAIR
---------------------------------------------------------------------------------
-
-1. Double-click PhoenixAgent.exe
-
-2. You'll see a 6-character pairing code (e.g., "ABC123")
-
-3. Go to: https://cosmicphoenix171.github.io/PhoenixHosting/phoenix-panel/
-
-4. Sign in with Google
-
-5. Click "Add Agent" and enter your pairing code
-
-6. Done! Your servers will appear in the panel.
+   - custom (any game server)
 
 ================================================================================
-
-THAT'S IT! No Firebase setup, no service accounts, no complicated config.
-
-================================================================================
-                              CONFIGURATION TIPS
+                              TIPS
 ================================================================================
 
 ADDING MORE SERVERS:
-Just add more entries to the "servers" section in agent-config.json
+   Add more entries to the "servers" section
 
-RUNNING AS A SERVICE (Optional):
-   Open PowerShell as Administrator and run:
+RUN AT STARTUP (Optional):
+   Open PowerShell as Administrator:
    sc.exe create PhoenixAgent binPath= "C:\PhoenixAgent\PhoenixAgent.exe"
    sc.exe config PhoenixAgent start= auto
    sc.exe start PhoenixAgent
 
-RESETTING PAIRING:
-   Delete config\pairing.json and restart the agent
+RE-PAIR WITH NEW ACCOUNT:
+   Delete config\pairing.json and restart
 
-LOGS:
-   Check the logs folder for troubleshooting
-
-================================================================================
-                                 SUPPORT
-================================================================================
+VIEW LOGS:
+   Check the "logs" folder if something isn't working
 
 GitHub: https://github.com/CosmicPhoenix171/PhoenixHosting
 Issues: https://github.com/CosmicPhoenix171/PhoenixHosting/issues
