@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phoenix Hosting - Redirecting...</title>
-    <meta http-equiv="refresh" content="0; url=phoenix-panel/index.html">
+    <title>Phoenix Hosting - Self-Host Your Game Servers</title>
+    <meta name="description" content="Free, open-source game server management. Host Minecraft, Hytale, and more from your own PC with secure remote access.">
     <link rel="icon" type="image/svg+xml" href="phoenix-panel/assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -14,57 +17,361 @@
         }
         body {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #e0e0e0;
+            line-height: 1.6;
         }
         .container {
-            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 2rem;
         }
-        .logo {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            animation: pulse 2s ease-in-out infinite;
+        
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 4rem;
         }
-        h1 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .logo {
+            font-size: 2rem;
+        }
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
             background: linear-gradient(135deg, #ff6b35, #ff8c42);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        p {
-            color: #888;
-            margin-bottom: 1.5rem;
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
         }
-        a {
+        .nav-links a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover {
+            color: #ff6b35;
+        }
+        
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+        .hero h1 span {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+        }
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #e0e0e0;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.3);
+        }
+        .btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* Features */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 4rem 0;
+        }
+        .feature {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.2s;
+        }
+        .feature:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,107,53,0.3);
+            transform: translateY(-4px);
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .feature h3 {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+        .feature p {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        
+        /* Games */
+        .games {
+            text-align: center;
+            padding: 4rem 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .games h2 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        .games .subtitle {
+            color: #888;
+            margin-bottom: 2rem;
+        }
+        .game-icons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .game-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            min-width: 120px;
+        }
+        .game-icon span:first-child {
+            font-size: 2.5rem;
+        }
+        .game-icon span:last-child {
+            font-size: 0.875rem;
+            color: #888;
+        }
+        
+        /* CTA */
+        .cta {
+            text-align: center;
+            padding: 4rem 2rem;
+            margin: 4rem 0;
+            background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,140,66,0.05));
+            border: 1px solid rgba(255,107,53,0.2);
+            border-radius: 16px;
+        }
+        .cta h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .cta p {
+            color: #888;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #666;
+            font-size: 0.875rem;
+        }
+        footer a {
             color: #ff6b35;
             text-decoration: none;
         }
-        a:hover {
+        footer a:hover {
             text-decoration: underline;
         }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .nav-links {
+                display: none;
+            }
+            header {
+                margin-bottom: 2rem;
+            }
+            .hero {
+                padding: 2rem 0;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">🔥</div>
-        <h1>Phoenix Hosting</h1>
-        <p>Redirecting to control panel...</p>
-        <p><a href="phoenix-panel/index.html">Click here if not redirected</a></p>
+        <header>
+            <div class="logo-section">
+                <span class="logo">🔥</span>
+                <span class="logo-text">Phoenix Hosting</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#features">Features</a>
+                <a href="https://github.com/CosmicPhoenix171/PhoenixHosting" target="_blank">GitHub</a>
+                <a href="docs/SETUP.md">Docs</a>
+                <a href="phoenix-panel/index.html">Control Panel</a>
+            </nav>
+        </header>
+        
+        <section class="hero">
+            <h1>Host Your Own <span>Game Servers</span><br>From Anywhere</h1>
+            <p>Free, open-source server management. Control Minecraft, Hytale, and more from your PC with secure remote access. No port forwarding required.</p>
+            <div class="hero-buttons">
+                <a href="https://github.com/CosmicPhoenix171/PhoenixHosting/archive/refs/heads/main.zip" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Download Free
+                </a>
+                <a href="phoenix-panel/index.html" class="btn btn-secondary">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    Open Control Panel
+                </a>
+            </div>
+        </section>
+        
+        <section class="features" id="features">
+            <div class="feature">
+                <div class="feature-icon">🔐</div>
+                <h3>No Port Forwarding</h3>
+                <p>Your PC stays invisible to the internet. Control servers through Firebase's secure cloud connection.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">👥</div>
+                <h3>Multi-User Access</h3>
+                <p>Invite friends with Google sign-in. Set permissions so users only see servers they're allowed to control.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Real-Time Updates</h3>
+                <p>Server status syncs instantly across all devices. See when your server starts, stops, or crashes immediately.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎮</div>
+                <h3>Multi-Game Support</h3>
+                <p>Manage Minecraft, Hytale, and any game server from one dashboard. Add custom server types easily.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💻</div>
+                <h3>Windows & Linux</h3>
+                <p>Run the agent on Windows or Linux. Works on any PC that can run your game server.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🆓</div>
+                <h3>100% Free & Open Source</h3>
+                <p>No subscriptions, no hidden fees. Self-host everything. MIT licensed.</p>
+            </div>
+        </section>
+        
+        <section class="games">
+            <h2>Supported Games</h2>
+            <p class="subtitle">Works with any game server you can run from command line</p>
+            <div class="game-icons">
+                <div class="game-icon">
+                    <span>⛏️</span>
+                    <span>Minecraft</span>
+                </div>
+                <div class="game-icon">
+                    <span>🏰</span>
+                    <span>Hytale</span>
+                </div>
+                <div class="game-icon">
+                    <span>🌲</span>
+                    <span>Valheim</span>
+                </div>
+                <div class="game-icon">
+                    <span>🚀</span>
+                    <span>Factorio</span>
+                </div>
+                <div class="game-icon">
+                    <span>🎯</span>
+                    <span>Custom</span>
+                </div>
+            </div>
+        </section>
+        
+        <section class="cta">
+            <h2>Ready to Host Your Server?</h2>
+            <p>Download Phoenix Hosting, set up Firebase (free tier), and start managing your game servers remotely in minutes.</p>
+            <a href="https://github.com/CosmicPhoenix171/PhoenixHosting/archive/refs/heads/main.zip" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download Now
+            </a>
+        </section>
+        
+        <footer>
+            <p>Made with 🔥 by <a href="https://github.com/CosmicPhoenix171" target="_blank">CosmicPhoenix171</a> · <a href="https://github.com/CosmicPhoenix171/PhoenixHosting" target="_blank">View on GitHub</a> · MIT License</p>
+        </footer>
     </div>
-    <script>
-        // Fallback redirect
-        window.location.href = 'phoenix-panel/index.html';
-    </script>
 </body>
 </html>
