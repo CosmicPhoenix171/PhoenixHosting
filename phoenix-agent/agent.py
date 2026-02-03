@@ -20,9 +20,17 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
-from phoenix_agent import PhoenixAgent
-from config import load_config, get_config_path
-from logger import setup_logging
+try:
+    from phoenix_agent import PhoenixAgent
+    from config import load_config, get_config_path
+    from logger import setup_logging
+except ImportError as e:
+    print(f'❌ Failed to import required modules: {e}')
+    print('\nMake sure all dependencies are installed:')
+    print('  pip install requests psutil')
+    print('\nPress Enter to exit...')
+    input()
+    sys.exit(1)
 
 
 def parse_args():
