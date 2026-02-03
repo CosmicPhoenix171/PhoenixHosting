@@ -34,6 +34,47 @@ Extract and double-click `PhoenixAgent.exe`. You'll see a **6-character pairing 
 
 ---
 
+## 📁 What's in the Download
+
+When you extract the ZIP, you'll find:
+
+```
+PhoenixAgent/
+├── PhoenixAgent.exe          ← The main program (run this!)
+├── agent-config.example.json ← Example configuration file
+├── service-account.json.example ← (Not needed - ignore this)
+└── README.txt                ← Quick setup instructions
+```
+
+| File | What It Does |
+|------|--------------|
+| `PhoenixAgent.exe` | The agent program. Double-click to run. Shows pairing code on first run. |
+| `agent-config.example.json` | Template for adding your game servers. Copy to `config/agent-config.json` and edit. |
+| `README.txt` | Quick reference guide you can read offline. |
+
+### First Run
+
+1. **Double-click `PhoenixAgent.exe`**
+2. A console window opens showing your **pairing code**
+3. The agent automatically creates a `config/` folder
+4. Pair with the web panel using the code
+
+### After Pairing
+
+The agent creates these files:
+
+```
+PhoenixAgent/
+├── config/
+│   ├── agent-identity.json   ← Your unique agent ID (auto-generated)
+│   ├── pairing.json          ← Stores your pairing info (auto-generated)
+│   └── agent-config.json     ← Your server config (you create this)
+└── logs/
+    └── phoenix-agent.log     ← Log file for troubleshooting
+```
+
+---
+
 ## 🎮 Adding Game Servers
 
 Edit `config/agent-config.json` to add your servers:
