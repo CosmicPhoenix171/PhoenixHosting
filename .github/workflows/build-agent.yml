@@ -27,7 +27,7 @@ jobs:
       - name: Build EXE
         run: |
           cd phoenix-agent
-          pyinstaller --onefile --name PhoenixAgent --icon ../phoenix-panel/assets/favicon.ico agent.py --add-data "src;src" --hidden-import=firebase_admin --hidden-import=google.auth --hidden-import=google.oauth2
+          pyinstaller --onefile --name PhoenixAgent agent.py --add-data "src;src" --hidden-import=firebase_admin --hidden-import=google.auth --hidden-import=google.oauth2
 
       - name: Create release package
         run: |
