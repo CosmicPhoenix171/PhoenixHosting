@@ -25,6 +25,19 @@
             "stopCommand": "stop",
             "stopTimeout": 30,
             "processName": "java.exe"
+        },
+        "hytale-main": {
+            "name": "Hytale Server",
+            "gameType": "hytale",
+            "executablePath": "C:\\HytaleServer\\start-server.bat",
+            "workingDirectory": "C:\\HytaleServer",
+            "arguments": [],
+            "stopCommand": "stop",
+            "stopTimeout": 60,
+            "processName": "hytale-server.exe",
+            "worldDirectory": "C:\\HytaleServer\\worlds\\default",
+            "backupDirectory": "C:\\HytaleServer\\backups",
+            "javaPath": "java"
         }
     }
 }
