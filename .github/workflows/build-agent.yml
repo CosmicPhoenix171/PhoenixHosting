@@ -38,6 +38,7 @@ jobs:
           copy phoenix-agent\dist\PhoenixAgent.exe release\
           copy phoenix-agent\config\agent-config.json release\agent-config.example.json
           copy phoenix-agent\config\service-account.json.example release\
+          copy phoenix-agent\README-SETUP.txt release\README.txt
           echo @echo off > release\install.bat
           echo echo Phoenix Agent Installer >> release\install.bat
           echo echo. >> release\install.bat
@@ -94,6 +95,7 @@ jobs:
           cp phoenix-agent/dist/phoenix-agent release/
           cp phoenix-agent/config/agent-config.json release/agent-config.example.json
           cp phoenix-agent/config/service-account.json.example release/
+          cp phoenix-agent/README-SETUP.txt release/README.txt
           chmod +x release/phoenix-agent
           cat > release/install.sh << 'EOF'
           #!/bin/bash
