@@ -459,11 +459,75 @@ async function handlePairAgent() {
 }
 
 /**
+ * Default paths for different game types
+ */
+const GAME_DEFAULTS = {
+    hytale: {
+        name: 'Hytale Server',
+        executable: 'C:\\HytaleServer\\start-server.bat',
+        directory: 'C:\\HytaleServer',
+        stopCommand: 'stop'
+    },
+    minecraft: {
+        name: 'Minecraft Server',
+        executable: 'C:\\MinecraftServer\\start.bat',
+        directory: 'C:\\MinecraftServer',
+        stopCommand: 'stop'
+    },
+    valheim: {
+        name: 'Valheim Server',
+        executable: 'C:\\ValheimServer\\start_headless_server.bat',
+        directory: 'C:\\ValheimServer',
+        stopCommand: ''
+    },
+    terraria: {
+        name: 'Terraria Server',
+        executable: 'C:\\TerrariaServer\\TerrariaServer.exe',
+        directory: 'C:\\TerrariaServer',
+        stopCommand: 'exit'
+    },
+    other: {
+        name: 'Game Server',
+        executable: 'C:\\GameServers\\MyServer\\start.bat',
+        directory: 'C:\\GameServers\\MyServer',
+        stopCommand: 'stop'
+    }
+};
+
+/**
+ * Update form fields when game type changes
+ */
+function updateServerDefaults() {
+    const gameType = document.getElementById('server-game').value;
+    const defaults = GAME_DEFAULTS[gameType] || GAME_DEFAULTS.other;
+    
+    const nameField = document.getElementById('server-name');
+    const execField = document.getElementById('server-executable');
+    const dirField = document.getElementById('server-directory');
+    const stopField = document.getElementById('server-stop-command');
+    
+    // Only update if fields are empty or contain previous defaults
+    if (!nameField.value || Object.values(GAME_DEFAULTS).some(d => d.name === nameField.value)) {
+        nameField.value = defaults.name;
+    }
+    if (!execField.value || Object.values(GAME_DEFAULTS).some(d => d.executable === execField.value)) {
+        execField.value = defaults.executable;
+    }
+    if (!dirField.value || Object.values(GAME_DEFAULTS).some(d => d.directory === dirField.value)) {
+        dirField.value = defaults.directory;
+    }
+    if (!stopField.value || Object.values(GAME_DEFAULTS).some(d => d.stopCommand === stopField.value)) {
+        stopField.value = defaults.stopCommand;
+    }
+}
+
+/**
  * Show the Add Server modal
  */
 async function showAddServerModal() {
     const modal = document.getElementById('add-server-modal');
     const agentSelect = document.getElementById('server-agent');
+    const gameSelect = document.getElementById('server-game');
     const error = document.getElementById('add-server-error');
     
     if (!modal) return;
@@ -487,12 +551,17 @@ async function showAddServerModal() {
             agentSelect.appendChild(option);
         });
         
-        // Reset form
-        document.getElementById('server-name').value = '';
-        document.getElementById('server-executable').value = '';
-        document.getElementById('server-directory').value = '';
-        document.getElementById('server-stop-command').value = 'stop';
+        // Set defaults based on selected game
+        const defaults = GAME_DEFAULTS[gameSelect.value] || GAME_DEFAULTS.hytale;
+        document.getElementById('server-name').value = defaults.name;
+        document.getElementById('server-executable').value = defaults.executable;
+        document.getElementById('server-directory').value = defaults.directory;
+        document.getElementById('server-stop-command').value = defaults.stopCommand;
         error.style.display = 'none';
+        
+        // Add change listener for game type
+        gameSelect.removeEventListener('change', updateServerDefaults);
+        gameSelect.addEventListener('change', updateServerDefaults);
         
         modal.classList.remove('hidden');
         
