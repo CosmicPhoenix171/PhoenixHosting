@@ -10,6 +10,12 @@ STEP 1: RUN THE AGENT
 
 Double-click PhoenixAgent.exe
 
+⚠️  WINDOWS SMARTSCREEN WARNING:
+    If you see "Windows protected your PC":
+    1. Click "More info"
+    2. Click "Run anyway"
+    (This is normal for unsigned apps - the agent is safe!)
+
 You'll see a 6-character pairing code like "ABC123"
 
 --------------------------------------------------------------------------------
