@@ -20,9 +20,11 @@ import {
     subscribeToUserAgents,
     sendCommand,
     sendAgentCommand,
+    addServerToAgent,
     getServerCommands,
     cleanupListeners,
-    pairAgent 
+    pairAgent,
+    getUserAgents
 } from './database.js';
 import {
     showLoadingScreen,
@@ -175,6 +177,14 @@ function setupEventListeners() {
     
     // Close modal on backdrop click
     document.querySelector('#add-agent-modal .modal-backdrop')?.addEventListener('click', hideAddAgentModal);
+    
+    // Add Server
+    document.getElementById('add-server-btn')?.addEventListener('click', showAddServerModal);
+    document.getElementById('add-server-empty-btn')?.addEventListener('click', showAddServerModal);
+    document.getElementById('add-server-close')?.addEventListener('click', hideAddServerModal);
+    document.getElementById('add-server-cancel')?.addEventListener('click', hideAddServerModal);
+    document.getElementById('add-server-submit')?.addEventListener('click', handleAddServer);
+    document.querySelector('#add-server-modal .modal-backdrop')?.addEventListener('click', hideAddServerModal);
     
     // Keyboard shortcuts
     document.addEventListener('keydown', handleKeydown);
@@ -445,6 +455,118 @@ async function handlePairAgent() {
     } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Pair Agent';
+    }
+}
+
+/**
+ * Show the Add Server modal
+ */
+async function showAddServerModal() {
+    const modal = document.getElementById('add-server-modal');
+    const agentSelect = document.getElementById('server-agent');
+    const error = document.getElementById('add-server-error');
+    
+    if (!modal) return;
+    
+    // Populate agent dropdown
+    try {
+        const agents = await getUserAgents();
+        
+        agentSelect.innerHTML = '<option value="">Select an agent...</option>';
+        
+        if (agents.length === 0) {
+            agentSelect.innerHTML = '<option value="">No agents available - add one first</option>';
+            showToast('warning', 'No Agents', 'Please add an agent before adding servers.');
+            return;
+        }
+        
+        agents.forEach(agent => {
+            const option = document.createElement('option');
+            option.value = agent.id;
+            option.textContent = `${agent.hostname} ${agent.online ? '(Online)' : '(Offline)'}`;
+            agentSelect.appendChild(option);
+        });
+        
+        // Reset form
+        document.getElementById('server-name').value = '';
+        document.getElementById('server-executable').value = '';
+        document.getElementById('server-directory').value = '';
+        document.getElementById('server-stop-command').value = 'stop';
+        error.style.display = 'none';
+        
+        modal.classList.remove('hidden');
+        
+    } catch (err) {
+        showToast('error', 'Error', 'Failed to load agents');
+    }
+}
+
+/**
+ * Hide the Add Server modal
+ */
+function hideAddServerModal() {
+    const modal = document.getElementById('add-server-modal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
+/**
+ * Handle adding a server
+ */
+async function handleAddServer() {
+    const agentId = document.getElementById('server-agent').value;
+    const name = document.getElementById('server-name').value.trim();
+    const gameType = document.getElementById('server-game').value;
+    const executablePath = document.getElementById('server-executable').value.trim();
+    const workingDirectory = document.getElementById('server-directory').value.trim();
+    const stopCommand = document.getElementById('server-stop-command').value.trim();
+    const error = document.getElementById('add-server-error');
+    const submitBtn = document.getElementById('add-server-submit');
+    
+    // Validation
+    if (!agentId) {
+        error.textContent = 'Please select an agent';
+        error.style.display = 'block';
+        return;
+    }
+    
+    if (!name) {
+        error.textContent = 'Please enter a server name';
+        error.style.display = 'block';
+        return;
+    }
+    
+    if (!executablePath) {
+        error.textContent = 'Please enter the executable path';
+        error.style.display = 'block';
+        return;
+    }
+    
+    try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Adding...';
+        error.style.display = 'none';
+        
+        await addServerToAgent(agentId, {
+            name,
+            gameType,
+            executablePath,
+            workingDirectory,
+            stopCommand
+        });
+        
+        hideAddServerModal();
+        showToast('success', 'Server Added!', 
+            `${name} has been added. Restart the agent to apply changes.`
+        );
+        
+    } catch (err) {
+        error.textContent = err.message;
+        error.style.display = 'block';
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Add Server';
     }
 }
 

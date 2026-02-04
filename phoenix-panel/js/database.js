@@ -683,6 +683,60 @@ export async function sendAgentCommand(agentId, serverId, action) {
     }
 }
 
+/**
+ * Add a server configuration to an agent
+ * @param {string} agentId - The agent ID
+ * @param {Object} serverConfig - The server configuration
+ * @returns {Promise<string>} The server ID
+ */
+export async function addServerToAgent(agentId, serverConfig) {
+    if (!isConfigValid || !database) {
+        throw new Error('Database not available');
+    }
+    
+    const user = getCurrentUser();
+    if (!user) {
+        throw new Error('You must be signed in');
+    }
+    
+    try {
+        // Generate a server ID from the name
+        const serverId = serverConfig.name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '') || 'server-' + Date.now();
+        
+        // Add to agent's servers
+        const serverRef = ref(database, `agents/${agentId}/servers/${serverId}`);
+        await set(serverRef, {
+            name: serverConfig.name,
+            gameType: serverConfig.gameType,
+            status: 'stopped',
+            addedAt: Date.now(),
+            addedBy: user.uid
+        });
+        
+        // Also add the config for the agent to pick up
+        const configRef = ref(database, `agents/${agentId}/serverConfigs/${serverId}`);
+        await set(configRef, {
+            name: serverConfig.name,
+            gameType: serverConfig.gameType,
+            executablePath: serverConfig.executablePath,
+            workingDirectory: serverConfig.workingDirectory || '',
+            stopCommand: serverConfig.stopCommand || 'stop',
+            arguments: [],
+            stopTimeout: 30
+        });
+        
+        console.log('✅ Server added:', serverId);
+        return serverId;
+        
+    } catch (error) {
+        console.error('❌ Error adding server:', error);
+        throw error;
+    }
+}
+
 // =============================================================================
 // Exports
 // =============================================================================
@@ -694,6 +748,7 @@ export default {
     subscribeToAgentServers,
     sendCommand,
     sendAgentCommand,
+    addServerToAgent,
     checkServerAccess,
     subscribeToCommand,
     getServerCommands,

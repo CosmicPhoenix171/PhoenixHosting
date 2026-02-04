@@ -91,6 +91,16 @@
             <div class="dashboard-header">
                 <h2>Your Servers</h2>
                 <div class="dashboard-actions">
+                    <button id="add-server-btn" class="btn btn-success btn-icon" title="Add Server">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="10" y1="10" x2="14" y2="10"/>
+                        </svg>
+                        <span>Add Server</span>
+                    </button>
                     <button id="add-agent-btn" class="btn btn-primary btn-icon" title="Add Agent">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"/>
@@ -115,7 +125,14 @@
             <div id="empty-state" class="empty-state hidden">
                 <div class="empty-icon">🎮</div>
                 <h3>No Servers Available</h3>
-                <p>You don't have access to any servers yet.<br>Contact an administrator to get access.</p>
+                <p>Add a server to get started.</p>
+                <button id="add-server-empty-btn" class="btn btn-primary" style="margin-top: 1rem;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Server
+                </button>
             </div>
 
             <!-- Loading State -->
@@ -152,6 +169,61 @@
             <div class="modal-footer">
                 <button id="add-agent-cancel" class="btn btn-secondary">Cancel</button>
                 <button id="add-agent-submit" class="btn btn-primary">Pair Agent</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Server Modal -->
+    <div id="add-server-modal" class="modal hidden">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>Add Server</h3>
+                <button class="modal-close" id="add-server-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-server-form">
+                    <div class="form-group">
+                        <label for="server-agent">Agent</label>
+                        <select id="server-agent" required>
+                            <option value="">Select an agent...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="server-name">Server Name</label>
+                        <input type="text" id="server-name" placeholder="My Game Server" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="server-game">Game Type</label>
+                        <select id="server-game" required>
+                            <option value="hytale">Hytale</option>
+                            <option value="minecraft">Minecraft</option>
+                            <option value="valheim">Valheim</option>
+                            <option value="terraria">Terraria</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="server-executable">Executable Path</label>
+                        <input type="text" id="server-executable" placeholder="C:\GameServers\MyServer\start.bat" required>
+                        <small>Full path to the server start script or executable</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="server-directory">Working Directory</label>
+                        <input type="text" id="server-directory" placeholder="C:\GameServers\MyServer">
+                        <small>Leave empty to use the executable's folder</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="server-stop-command">Stop Command (optional)</label>
+                        <input type="text" id="server-stop-command" placeholder="stop" value="stop">
+                        <small>Command to send to gracefully stop the server</small>
+                    </div>
+                </form>
+                <p id="add-server-error" style="color: var(--danger-color); margin-top: 0.5rem; display: none;"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="add-server-cancel" class="btn btn-secondary">Cancel</button>
+                <button id="add-server-submit" class="btn btn-success">Add Server</button>
             </div>
         </div>
     </div>
