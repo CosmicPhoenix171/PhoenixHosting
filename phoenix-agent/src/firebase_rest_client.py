@@ -411,15 +411,17 @@ class FirebaseRESTClient:
         except Exception as e:
             logger.debug(f'Server sync error: {e}')
     
-    def update_server_status(self, server_id: str, status: str, details: Optional[Dict] = None):
+    def update_server_status(self, server_id: str, status: str, message: Optional[str] = None, pid: Optional[int] = None):
         """Update a server's status in Firebase."""
         try:
             update_data = {
                 'status': status,
                 'updated_at': int(time.time() * 1000)
             }
-            if details:
-                update_data.update(details)
+            if message:
+                update_data['message'] = message
+            if pid:
+                update_data['pid'] = pid
             
             self._db_request(f'agents/{self.agent_id}/servers/{server_id}', 'PATCH', update_data)
             
