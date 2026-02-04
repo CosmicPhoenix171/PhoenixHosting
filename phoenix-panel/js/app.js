@@ -17,6 +17,7 @@ import {
     subscribeToServers, 
     subscribeToAgentStatus,
     subscribeToAgentServers,
+    subscribeToUserAgents,
     sendCommand,
     sendAgentCommand,
     getServerCommands,
@@ -108,18 +109,18 @@ function handleAuthStateChange(user) {
 async function initializeDashboard() {
     showServersLoading();
     
+    // Subscribe to user's agents for online status
+    unsubscribeAgent = subscribeToUserAgents((agents) => {
+        const anyOnline = agents.some(a => a.online);
+        updateAgentStatus({
+            online: anyOnline,
+            message: anyOnline ? 'Agent connected' : 'Agent offline'
+        });
+    });
+    
     // Subscribe to agent-based servers (new flow)
     unsubscribeServers = subscribeToAgentServers((servers) => {
         currentServers = servers;
-        
-        // Update agent status based on servers
-        if (servers.length > 0) {
-            const anyOnline = servers.some(s => s.agentOnline);
-            updateAgentStatus({
-                online: anyOnline,
-                message: anyOnline ? 'Agent connected' : 'Agent offline'
-            });
-        }
         
         renderServers(servers, {
             start: handleStartServer,

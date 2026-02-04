@@ -37,6 +37,9 @@
     // AGENTS - Agent data and commands
     // -------------------------------------------------------------------------
     "agents": {
+      // Authenticated users can list all agents (filtered client-side by user_id)
+      ".read": "auth != null",
+      
       "$agentId": {
         // Agent owner or the agent itself can read
         ".read": true,
