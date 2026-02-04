@@ -170,13 +170,16 @@ export function renderServers(servers, handlers) {
  * @returns {HTMLElement} The server card element
  */
 function createServerCard(server, handlers) {
-    const status = server.status || { state: 'stopped' };
-    const statusDisplay = getStatusDisplay(status.state);
+    // Handle status as either string or object
+    const statusState = typeof server.status === 'string' 
+        ? server.status 
+        : (server.status?.state || 'stopped');
+    const statusDisplay = getStatusDisplay(statusState);
     const gameDisplay = getGameDisplay(server.gameType);
     
-    const isRunning = status.state === 'running';
-    const isStopped = status.state === 'stopped' || status.state === 'error';
-    const isTransitioning = status.state === 'starting' || status.state === 'stopping';
+    const isRunning = statusState === 'running';
+    const isStopped = statusState === 'stopped' || statusState === 'error';
+    const isTransitioning = statusState === 'starting' || statusState === 'stopping';
     
     const card = document.createElement('div');
     card.className = 'server-card';
@@ -205,7 +208,7 @@ function createServerCard(server, handlers) {
             <div class="server-stats">
                 <div class="stat-item">
                     <div class="stat-label">Last Updated</div>
-                    <div class="stat-value">${formatTimestamp(status.lastUpdated)}</div>
+                    <div class="stat-value">${formatTimestamp(server.updated_at || server.lastSeen)}</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">Server ID</div>
