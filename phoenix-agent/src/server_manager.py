@@ -103,6 +103,180 @@ class ServerManager:
             return self.remote_config[server_id]
         return self.local_config.get(server_id)
     
+    def setup_server(self, server_id: str, config: Optional[Dict[str, Any]] = None) -> Tuple[bool, str]:
+        """
+        Set up a game server by creating directory and start script.
+        
+        Args:
+            server_id: The server ID.
+            config: Server configuration.
+            
+        Returns:
+            Tuple of (success, message).
+        """
+        server_config = config or self.get_server_config(server_id)
+        if not server_config:
+            return False, f'No configuration found for server: {server_id}'
+        
+        try:
+            # Get paths from config
+            executable_path = Path(server_config.get('executablePath', ''))
+            working_dir = Path(server_config.get('workingDirectory', executable_path.parent if executable_path else ''))
+            game_type = server_config.get('gameType', 'minecraft').lower()
+            server_name = server_config.get('name', server_id)
+            
+            if not working_dir:
+                return False, 'No working directory specified in configuration'
+            
+            # Create working directory if it doesn't exist
+            working_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f'Created server directory: {working_dir}')
+            
+            # Generate start script based on game type
+            script_content = self._generate_start_script(game_type, server_config)
+            
+            # Determine script filename
+            if os.name == 'nt':
+                script_name = 'start-server.bat'
+            else:
+                script_name = 'start-server.sh'
+            
+            script_path = working_dir / script_name
+            
+            # Write the script
+            with open(script_path, 'w', newline='\n' if os.name != 'nt' else '\r\n') as f:
+                f.write(script_content)
+            
+            # Make executable on Linux/Mac
+            if os.name != 'nt':
+                script_path.chmod(0o755)
+            
+            logger.info(f'Created start script: {script_path}')
+            
+            # Update the config with the actual executable path
+            if server_id in self.remote_config:
+                self.remote_config[server_id]['executablePath'] = str(script_path)
+            
+            return True, f'Server setup complete. Directory: {working_dir}, Script: {script_name}'
+            
+        except PermissionError as e:
+            return False, f'Permission denied creating server files: {e}'
+        except Exception as e:
+            logger.exception(f'Error setting up server {server_id}')
+            return False, f'Failed to set up server: {str(e)}'
+    
+    def _generate_start_script(self, game_type: str, config: Dict[str, Any]) -> str:
+        """
+        Generate a start script for the given game type.
+        
+        Args:
+            game_type: Type of game server (minecraft, hytale, terraria, etc.)
+            config: Server configuration.
+            
+        Returns:
+            Script content as string.
+        """
+        is_windows = os.name == 'nt'
+        arguments = config.get('arguments', [])
+        args_str = ' '.join(arguments) if arguments else ''
+        
+        if game_type == 'minecraft':
+            # Minecraft Java server
+            java_args = args_str or '-Xmx2G -Xms1G'
+            if is_windows:
+                return f'''@echo off
+title Minecraft Server
+echo Starting Minecraft Server...
+java {java_args} -jar server.jar nogui
+pause
+'''
+            else:
+                return f'''#!/bin/bash
+echo "Starting Minecraft Server..."
+java {java_args} -jar server.jar nogui
+'''
+        
+        elif game_type == 'hytale':
+            # Hytale dedicated server
+            if is_windows:
+                return '''@echo off
+title Hytale Server
+echo Starting Hytale Dedicated Server...
+if exist "HytaleServer.exe" (
+    HytaleServer.exe
+) else (
+    echo ERROR: HytaleServer.exe not found!
+    echo Please download the Hytale dedicated server files.
+    pause
+)
+'''
+            else:
+                return '''#!/bin/bash
+echo "Starting Hytale Dedicated Server..."
+if [ -f "./HytaleServer" ]; then
+    ./HytaleServer
+else
+    echo "ERROR: HytaleServer not found!"
+    echo "Please download the Hytale dedicated server files."
+fi
+'''
+        
+        elif game_type == 'terraria':
+            # Terraria server
+            if is_windows:
+                return '''@echo off
+title Terraria Server
+echo Starting Terraria Server...
+if exist "TerrariaServer.exe" (
+    TerrariaServer.exe -config serverconfig.txt
+) else (
+    echo ERROR: TerrariaServer.exe not found!
+    pause
+)
+'''
+            else:
+                return '''#!/bin/bash
+echo "Starting Terraria Server..."
+if [ -f "./TerrariaServer" ]; then
+    ./TerrariaServer -config serverconfig.txt
+else
+    echo "ERROR: TerrariaServer not found!"
+fi
+'''
+        
+        elif game_type == 'valheim':
+            # Valheim dedicated server
+            if is_windows:
+                return '''@echo off
+title Valheim Server
+echo Starting Valheim Dedicated Server...
+set SteamAppId=892970
+valheim_server.exe -nographics -batchmode -name "My Server" -port 2456 -world "Dedicated" -password "secret"
+'''
+            else:
+                return '''#!/bin/bash
+echo "Starting Valheim Dedicated Server..."
+export SteamAppId=892970
+./valheim_server.x86_64 -nographics -batchmode -name "My Server" -port 2456 -world "Dedicated" -password "secret"
+'''
+        
+        else:
+            # Generic server
+            if is_windows:
+                return f'''@echo off
+title {config.get('name', 'Game Server')}
+echo Starting server...
+echo NOTE: Edit this script to launch your specific game server.
+echo Working directory: %CD%
+pause
+'''
+            else:
+                return f'''#!/bin/bash
+echo "Starting server..."
+echo "NOTE: Edit this script to launch your specific game server."
+echo "Working directory: $(pwd)"
+'''
+    
     def start_server(self, server_id: str, config: Optional[Dict[str, Any]] = None) -> Tuple[bool, str, Optional[int]]:
         """
         Start a game server.

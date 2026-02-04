@@ -217,6 +217,15 @@ function createServerCard(server, handlers) {
             </div>
             <div class="server-actions">
                 <button 
+                    class="btn btn-setup ${!isStopped ? 'hidden' : ''}" 
+                    data-action="setup"
+                    data-server-id="${server.id}"
+                    ${isTransitioning ? 'disabled' : ''}
+                    title="Create server folder and start script"
+                >
+                    📁 Setup
+                </button>
+                <button 
                     class="btn btn-start ${!isStopped ? 'hidden' : ''}" 
                     data-action="start"
                     data-server-id="${server.id}"

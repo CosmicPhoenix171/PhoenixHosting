@@ -22,7 +22,7 @@ logger = logging.getLogger('phoenix.command')
 
 
 # Valid actions that can be executed
-VALID_ACTIONS = {'start', 'stop', 'restart'}
+VALID_ACTIONS = {'start', 'stop', 'restart', 'setup'}
 
 # Maximum age of a command to process (in seconds)
 MAX_COMMAND_AGE = 300  # 5 minutes
@@ -247,6 +247,10 @@ class CommandProcessor:
         elif action == 'restart':
             success, message, pid = self.server_manager.restart_server(server_id, server_config)
             return CommandResult(success, message, pid)
+        
+        elif action == 'setup':
+            success, message = self.server_manager.setup_server(server_id, server_config)
+            return CommandResult(success, message)
         
         else:
             return CommandResult(False, f'Unknown action: {action}')

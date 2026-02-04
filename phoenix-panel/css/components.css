@@ -270,6 +270,15 @@
 }
 
 /* Action Button States */
+.btn-setup {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-setup:hover:not(:disabled) {
+    background-color: var(--color-primary-dark, #4338ca);
+}
+
 .btn-start {
     background-color: var(--color-success);
     color: white;
