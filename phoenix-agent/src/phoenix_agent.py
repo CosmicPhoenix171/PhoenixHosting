@@ -77,6 +77,9 @@ class PhoenixAgent:
             # Start command listener
             self.firebase.start_command_listener(self._handle_command)
             
+            # Start config listener (auto-reload server configs)
+            self.firebase.start_config_listener(self._handle_config_update)
+            
             # Start status sync thread
             self._start_status_sync()
             
@@ -98,6 +101,11 @@ class PhoenixAgent:
             raise
         finally:
             self.stop()
+    
+    def _handle_config_update(self, configs: dict):
+        """Handle server config updates from Firebase."""
+        logger.info(f'📥 Received {len(configs)} server config(s) from cloud')
+        self.server_manager.update_remote_configs(configs)
     
     def stop(self):
         """Stop the agent gracefully."""

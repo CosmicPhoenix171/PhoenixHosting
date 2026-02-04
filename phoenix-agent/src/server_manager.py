@@ -62,14 +62,35 @@ class ServerManager:
             local_config: Local server configurations from agent-config.json.
         """
         self.local_config = local_config.get('servers', {})
+        self.remote_config: Dict[str, Any] = {}  # Configs from Firebase
         self.running_servers: Dict[str, ServerProcess] = {}
         self._lock = Lock()
         
         logger.info(f'Server Manager initialized with {len(self.local_config)} local server configs')
     
+    def update_remote_configs(self, configs: Dict[str, Any]):
+        """
+        Update server configurations from Firebase.
+        
+        Args:
+            configs: Server configurations from Firebase.
+        """
+        if configs and isinstance(configs, dict):
+            new_servers = set(configs.keys()) - set(self.remote_config.keys())
+            self.remote_config = configs
+            
+            if new_servers:
+                logger.info(f'Loaded {len(new_servers)} new server config(s) from cloud: {", ".join(new_servers)}')
+            
+            logger.debug(f'Remote configs updated: {len(self.remote_config)} servers')
+    
+    def get_all_server_ids(self) -> list:
+        """Get all known server IDs (local + remote)."""
+        return list(set(self.local_config.keys()) | set(self.remote_config.keys()))
+    
     def get_server_config(self, server_id: str) -> Optional[Dict[str, Any]]:
         """
-        Get local configuration for a server.
+        Get configuration for a server (checks remote first, then local).
         
         Args:
             server_id: The server ID.
@@ -77,6 +98,9 @@ class ServerManager:
         Returns:
             Server configuration or None if not found.
         """
+        # Remote config takes priority (user-added via web panel)
+        if server_id in self.remote_config:
+            return self.remote_config[server_id]
         return self.local_config.get(server_id)
     
     def start_server(self, server_id: str, config: Optional[Dict[str, Any]] = None) -> Tuple[bool, str, Optional[int]]:

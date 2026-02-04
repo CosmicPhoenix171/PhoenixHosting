@@ -361,6 +361,56 @@ class FirebaseRESTClient:
         self._heartbeat_thread.start()
         logger.info(f'Started heartbeat (interval: {interval}s)')
     
+    def start_config_listener(self, callback: Callable[[Dict[str, Any]], None]):
+        """
+        Start listening for server config changes from Firebase.
+        
+        Args:
+            callback: Function to call with new server configs.
+        """
+        self._on_config_callback = callback
+        
+        def poll_configs():
+            last_configs = None
+            
+            while not self._stop_event.is_set():
+                try:
+                    if self.user_id:
+                        # Get server configs from Firebase
+                        configs = self._db_request(f'agents/{self.agent_id}/serverConfigs')
+                        
+                        # Check if configs changed
+                        if configs != last_configs:
+                            last_configs = configs
+                            if configs and self._on_config_callback:
+                                self._on_config_callback(configs)
+                                
+                                # Also update the servers list to sync
+                                self._sync_servers_from_configs(configs)
+                    
+                except Exception as e:
+                    logger.debug(f'Config poll error: {e}')
+                
+                time.sleep(5)  # Check every 5 seconds
+        
+        self._config_thread = Thread(target=poll_configs, daemon=True)
+        self._config_thread.start()
+        logger.info('Started config listener (auto-reload enabled)')
+    
+    def _sync_servers_from_configs(self, configs: Dict[str, Any]):
+        """Sync server list from serverConfigs."""
+        try:
+            for server_id, config in configs.items():
+                # Make sure server appears in servers list
+                server_data = {
+                    'name': config.get('name', server_id),
+                    'gameType': config.get('gameType', 'unknown'),
+                    'status': 'stopped'  # Will be updated by status sync
+                }
+                self._db_request(f'agents/{self.agent_id}/servers/{server_id}', 'PATCH', server_data)
+        except Exception as e:
+            logger.debug(f'Server sync error: {e}')
+    
     def update_server_status(self, server_id: str, status: str, details: Optional[Dict] = None):
         """Update a server's status in Firebase."""
         try:
