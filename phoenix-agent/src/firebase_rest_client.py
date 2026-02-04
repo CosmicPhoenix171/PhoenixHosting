@@ -426,7 +426,7 @@ class FirebaseRESTClient:
         except Exception as e:
             logger.error(f'Failed to update server status: {e}')
     
-    def update_command_status(self, command_id: str, status: str, result: Optional[Dict] = None):
+    def update_command_status(self, command_id: str, status: str, result: Optional[str] = None, error: Optional[str] = None):
         """Update a command's status."""
         try:
             update_data = {
@@ -435,6 +435,8 @@ class FirebaseRESTClient:
             }
             if result:
                 update_data['result'] = result
+            if error:
+                update_data['error'] = error
             
             self._db_request(f'agents/{self.agent_id}/commands/{command_id}', 'PATCH', update_data)
             
